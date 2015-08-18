@@ -34,6 +34,17 @@ module.exports = function(config, app) {
       }, function(err) {
         res.json(502, { "error" : "bad_gateway" , "reason": err.code }); 
       });
+    });
   });
-});
+
+  app.get('/api/bundle/:id', function(req, res) {
+    var promise = Q.nfcall(request.get, config.b4db + '/' + req.params.id);
+    var result = promise.then(function(args) {
+      let couchRes = args[0], body = JSON.parse(args[1]);
+      res.json(couchRes.statusCode, body);
+    }, function(err) {
+      res.json(502, { error: "bad_gateway", reason: err.code })
+    });
+    result.done();
+  });
 };
